@@ -109,7 +109,6 @@ func parseIsDone(doc *goquery.Document) bool {
 	return el.HasClass("icon-check")
 }
 
-// Распарсить инфу о списке глав в книге
 func parseChaptersList(doc *goquery.Document, workId string) []rawChapters {
 
 	timestamp := fmt.Sprintf("%d", time.Now().UnixMilli())

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/paldraken/book_thief/pkg/fetch"
 	"github.com/paldraken/book_thief/pkg/parse/types"
@@ -18,6 +19,11 @@ func chapters(chaptersResp []*fetch.BatchResp, chaptersList []rawChapters) ([]ty
 		}
 		secret := resp.Resp.Header.Get("Reader-Secret")
 		chText = decodeText(secret, chText, "")
+		chText = strings.Replace(chText, "</p>", "</p>\n", -1)
+		chText = strings.Replace(chText, " style=\"text-align: justify\"", "", -1)
+		chText = strings.Replace(chText, "<br>", "", -1)
+		chText = strings.Replace(chText, "<p><p>", "", -1)
+
 		chapters = append(chapters, types.ParsedChapter{
 			Number: i,
 			Title:  chaptersList[i].Title,
@@ -61,10 +67,8 @@ func decodeText(secret, text, userId string) string {
 	result := ""
 
 	for _, c := range text {
-		code1 := int(c)
 		mIdx := int(float64(counter % len(magic)))
-		code2 := int(magic[mIdx])
-		newCh := code1 ^ code2
+		newCh := int(c) ^ int(magic[mIdx])
 		counter++
 		result = result + string(rune(newCh))
 	}

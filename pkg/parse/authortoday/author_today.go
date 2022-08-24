@@ -1,7 +1,6 @@
 package authortoday
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -51,14 +50,12 @@ func (at *AT) Parse(workUrl string) (*types.ParsedBookInfo, error) {
 	}
 
 	chapters, err := chapters(chaptersResp, chaptersList)
-
-	for _, ch := range chapters {
-		fmt.Println(ch.Number, ch.Title, len(ch.Text))
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Println(pbi)
-	fmt.Println(err)
-	return nil, nil
+	pbi.Chapters = chapters
+	return pbi, nil
 }
 
 func (at *AT) workIdFromUrl(workUrl string) (string, error) {
