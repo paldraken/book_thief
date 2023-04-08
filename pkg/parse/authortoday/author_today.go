@@ -1,108 +1,90 @@
 package authortoday
 
 import (
+	"fmt"
 	"log"
-	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
-	"github.com/PuerkitoBio/goquery"
-	"github.com/paldraken/book_thief/pkg/fetch"
+	"github.com/paldraken/book_thief/pkg/parse/authortoday/api"
 	"github.com/paldraken/book_thief/pkg/parse/types"
 )
 
-const (
-	CHAPTER_BASE_URL = "https://author.today/reader/%s/chapter?id=%s&_=%s"
-)
-
-type rawChapters struct {
-	Title string
-	Url   string
-}
-
 type AT struct {
+	userToken string
 }
 
 // https://author.today/work/210338
 func (at *AT) Parse(workUrl string) (*types.ParsedBookInfo, error) {
 
-	workId, err := at.workIdFromUrl(workUrl)
+	workId, err := workIdFromUrl(workUrl)
 	if err != nil {
 		return nil, err
 	}
-	ft := fetch.NewFetcher()
+	username := ""
+	password := ""
 
-	doc, err := fetchBookInfo(workUrl, ft)
+	token, err := api.ObtainingAccessToken(username, password)
 	if err != nil {
 		return nil, err
 	}
+	at.userToken = token
+	fmt.Println("at.userToken", token)
 
-	pbi, err := at.bookInfo(doc)
-	if err != nil {
-		return nil, err
-	}
-
-	chaptersList := parseChaptersList(doc, workId)
-
-	chaptersResp, err := fetchChapters(chaptersList, ft)
+	curentUser, err := api.FetchCurrentUser(token)
 	if err != nil {
 		return nil, err
 	}
 
-	chapters, err := chapters(chaptersResp, chaptersList)
+	bookMeta, err := api.FetchBookMetaInfo(workId, token)
 	if err != nil {
 		return nil, err
 	}
 
-	pbi.Chapters = chapters
+	pbi, err := at.bookInfo(bookMeta)
+	if err != nil {
+		return nil, err
+	}
+
+	bookChapters := []types.ParsedChapter{}
+	for _, ch := range bookMeta.Chapters {
+		fmt.Println(ch)
+		chapter, err := api.FetchBookChapter(workId, ch.ID, token)
+		if err != nil {
+			return nil, err
+		}
+		text := decodeText(chapter.Key, chapter.Text, fmt.Sprintf("%d", curentUser.Id))
+		bCh := types.ParsedChapter{}
+		bCh.Number = ch.SortOrder
+		bCh.Text = text
+		bCh.Title = ch.Title
+
+		bookChapters = append(bookChapters, bCh)
+	}
+
+	pbi.Chapters = bookChapters
+
+	fmt.Println(curentUser.Id)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
 	return pbi, nil
 }
 
-func (at *AT) workIdFromUrl(workUrl string) (string, error) {
+func workIdFromUrl(workUrl string) (int, error) {
 	u, err := url.Parse(workUrl)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	parts := strings.Split(u.Path, "/")
-	return parts[len(parts)-1], nil
-}
+	workIdStr := parts[len(parts)-1]
 
-// Загрузить страницу с инфой о книге
-func fetchBookInfo(workUrl string, ft fetch.Fetcher) (*goquery.Document, error) {
-	req, err := http.NewRequest(http.MethodGet, workUrl, nil)
+	workId, err := strconv.Atoi(workIdStr)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
-
-	resp, err := ft.Fetch(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return doc, nil
-}
-
-// Загрузить главы с сайта
-func fetchChapters(chprs []rawChapters, ft fetch.Fetcher) ([]*fetch.BatchResp, error) {
-	requests := []*http.Request{}
-	for _, ch := range chprs {
-		req, _ := http.NewRequest(http.MethodGet, ch.Url, nil)
-		requests = append(requests, req)
-	}
-
-	httpResps, _ := ft.FetchBatch(requests)
-
-	for _, resp := range httpResps {
-		if resp.Err != nil {
-			return nil, resp.Err
-		}
-	}
-
-	return httpResps, nil
+	return workId, nil
 }

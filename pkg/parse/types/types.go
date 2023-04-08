@@ -1,10 +1,18 @@
 package types
 
+const (
+	Author     = "Author"
+	CoAuthor   = "CoAuthor"
+	Translator = "Translator"
+)
+
 type ParsedAuthor struct {
+	FullName  string
 	Firstname string
 	Lastname  string
 	NickName  string
 	Email     string
+	Type      string
 }
 
 type ParsedChapter struct {

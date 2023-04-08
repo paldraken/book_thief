@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/paldraken/book_thief/pkg/export"
 	"github.com/paldraken/book_thief/pkg/parse"
 )
 
@@ -38,20 +37,22 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	data, err := export.ToFormat(pbi, "FB2")
-	if err != nil {
-		log.Fatalln(err)
-	}
+	fmt.Println(pbi)
 
-	f, err := openFile()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// data, err := export.ToFormat(pbi, "FB2")
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
 
-	if _, err := f.Write(data); err != nil {
-		log.Fatalln(err)
-	}
-	defer f.Close()
+	// f, err := openFile()
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+	// if _, err := f.Write(data); err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// defer f.Close()
 
 	fmt.Printf("%.2fs elapsed\n", time.Since(startAt).Seconds())
 }
