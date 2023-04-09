@@ -7,8 +7,8 @@ import (
 	"github.com/paldraken/book_thief/pkg/parse/types"
 )
 
-func (at *AT) bookInfo(bookMeta *api.BookMetaInfo) (*types.ParsedBookInfo, error) {
-	var pbi types.ParsedBookInfo
+func (at *AT) bookInfo(bookMeta *api.BookMetaInfo) (*types.BookData, error) {
+	var pbi types.BookData
 
 	// @toDo check bookDetail.State for deleted books
 
@@ -26,18 +26,18 @@ func (at *AT) bookInfo(bookMeta *api.BookMetaInfo) (*types.ParsedBookInfo, error
 	return &pbi, nil
 }
 
-func parseAuthors(bmi *api.BookMetaInfo) []types.ParsedAuthor {
-	result := make([]types.ParsedAuthor, 1)
+func parseAuthors(bmi *api.BookMetaInfo) []types.BookAuthor {
+	result := make([]types.BookAuthor, 1)
 
 	if bmi.OriginalAuthor != "" { // Translte
-		originalAuthor := types.ParsedAuthor{
+		originalAuthor := types.BookAuthor{
 			FullName: bmi.OriginalAuthor,
 			Type:     types.Author,
 		}
 		result = append(result, originalAuthor)
 
 		if bmi.Translator != "" {
-			author := types.ParsedAuthor{
+			author := types.BookAuthor{
 				FullName: bmi.Translator,
 				Type:     types.Translator,
 			}
@@ -46,7 +46,7 @@ func parseAuthors(bmi *api.BookMetaInfo) []types.ParsedAuthor {
 
 		result = append(result, originalAuthor)
 	} else {
-		author := types.ParsedAuthor{
+		author := types.BookAuthor{
 			FullName: bmi.AuthorFIO,
 			NickName: bmi.AuthorUserName,
 			Type:     types.Author,
@@ -54,7 +54,7 @@ func parseAuthors(bmi *api.BookMetaInfo) []types.ParsedAuthor {
 		result = append(result, author)
 
 		if bmi.CoAuthorConfirmed {
-			author := types.ParsedAuthor{
+			author := types.BookAuthor{
 				FullName: bmi.CoAuthorFIO,
 				NickName: bmi.CoAuthorUserName,
 				Type:     types.CoAuthor,
@@ -63,7 +63,7 @@ func parseAuthors(bmi *api.BookMetaInfo) []types.ParsedAuthor {
 		}
 
 		if bmi.SecondCoAuthorConfirmed {
-			author := types.ParsedAuthor{
+			author := types.BookAuthor{
 				FullName: bmi.SecondCoAuthorFIO,
 				NickName: bmi.SecondCoAuthorUserName,
 				Type:     types.CoAuthor,

@@ -21,10 +21,10 @@ func (e *InvalidFormat) Error() string {
 }
 
 type exporter interface {
-	Export(book *types.ParsedBookInfo) ([]byte, error)
+	Export(book *types.BookData) ([]byte, error)
 }
 
-func ToFormat(book *types.ParsedBookInfo, format string) ([]byte, error) {
+func ToFormat(book *types.BookData, format string) ([]byte, error) {
 	m := map[string]func() exporter{
 		FORMAT_FB2: func() exporter { return &fb2{} },
 	}

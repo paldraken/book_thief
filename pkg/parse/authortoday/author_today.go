@@ -16,7 +16,7 @@ type AT struct {
 }
 
 // https://author.today/work/210338
-func (at *AT) Parse(workUrl string) (*types.ParsedBookInfo, error) {
+func (at *AT) Parse(workUrl string) (*types.BookData, error) {
 
 	workId, err := workIdFromUrl(workUrl)
 	if err != nil {
@@ -30,7 +30,6 @@ func (at *AT) Parse(workUrl string) (*types.ParsedBookInfo, error) {
 		return nil, err
 	}
 	at.userToken = token
-	fmt.Println("at.userToken", token)
 
 	curentUser, err := api.FetchCurrentUser(token)
 	if err != nil {
@@ -47,25 +46,21 @@ func (at *AT) Parse(workUrl string) (*types.ParsedBookInfo, error) {
 		return nil, err
 	}
 
-	bookChapters := []types.ParsedChapter{}
+	bookChapters := []types.BookChapter{}
 	for _, ch := range bookMeta.Chapters {
-		fmt.Println(ch)
 		chapter, err := api.FetchBookChapter(workId, ch.ID, token)
 		if err != nil {
 			return nil, err
 		}
 		text := decodeText(chapter.Key, chapter.Text, fmt.Sprintf("%d", curentUser.Id))
-		bCh := types.ParsedChapter{}
+		bCh := types.BookChapter{}
 		bCh.Number = ch.SortOrder
 		bCh.Text = text
 		bCh.Title = ch.Title
-
 		bookChapters = append(bookChapters, bCh)
 	}
 
 	pbi.Chapters = bookChapters
-
-	fmt.Println(curentUser.Id)
 
 	if err != nil {
 		log.Panic(err)

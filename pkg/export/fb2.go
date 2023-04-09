@@ -53,7 +53,7 @@ type fb2fictionBook struct {
 
 type fb2 struct{}
 
-func (f *fb2) Export(book *types.ParsedBookInfo) ([]byte, error) {
+func (f *fb2) Export(book *types.BookData) ([]byte, error) {
 	res := &fb2fictionBook{
 		XMLlns:  "http://www.gribuser.ru/xml/fictionbook/2.0",
 		XMLlnsl: "http://www.w3.org/1999/xlink",
@@ -68,7 +68,7 @@ func (f *fb2) Export(book *types.ParsedBookInfo) ([]byte, error) {
 	return out, nil
 }
 
-func description(book *types.ParsedBookInfo) fb2Description {
+func description(book *types.BookData) fb2Description {
 	var afn string
 	var aln string
 	if len(book.Authors) > 0 {
@@ -98,7 +98,7 @@ func description(book *types.ParsedBookInfo) fb2Description {
 	}
 }
 
-func body(book *types.ParsedBookInfo) fb2Body {
+func body(book *types.BookData) fb2Body {
 	body := fb2Body{
 		Title:    book.Title,
 		Sections: []*fb2Section{},

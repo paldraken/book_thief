@@ -6,7 +6,7 @@ const (
 	Translator = "Translator"
 )
 
-type ParsedAuthor struct {
+type BookAuthor struct {
 	FullName  string
 	Firstname string
 	Lastname  string
@@ -15,16 +15,16 @@ type ParsedAuthor struct {
 	Type      string
 }
 
-type ParsedChapter struct {
+type BookChapter struct {
 	Number int
 	Title  string
 	Text   string
 	Url    string
 }
 
-type ParsedBookInfo struct {
+type BookData struct {
 	Title      string
-	Authors    []ParsedAuthor
+	Authors    []BookAuthor
 	WorkForm   string
 	Genres     []string
 	Series     string
@@ -32,6 +32,6 @@ type ParsedBookInfo struct {
 	Tags       []string
 	Date       string
 	Annotation string
-	Chapters   []ParsedChapter
+	Chapters   []BookChapter
 	IsDone     bool
 }
