@@ -20,7 +20,7 @@ type loginRes struct {
 	Expires time.Time `json:"expires"`
 }
 
-func ObtainingAccessToken(login, password string) (string, error) {
+func (a *HttpApi) ObtainingAccessToken(login, password string) (string, error) {
 
 	if login == "" || password == "" {
 		return DEFAULT_TOKEN, nil

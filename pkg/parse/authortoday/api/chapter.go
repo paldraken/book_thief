@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func FetchBookChapter(workId, chapterId int, userToken string) (*Chapter, error) {
+func (a *HttpApi) FetchBookChapter(workId, chapterId int, userToken string) (*Chapter, error) {
 	path := fmt.Sprintf("v1/work/%d/chapter/%d/text", workId, chapterId)
 	body, err := makeRequest(path, userToken)
 	if err != nil {

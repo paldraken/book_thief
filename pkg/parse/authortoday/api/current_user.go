@@ -2,7 +2,7 @@ package api
 
 import "encoding/json"
 
-func FetchCurrentUser(userToken string) (*CurrentUser, error) {
+func (a *HttpApi) FetchCurrentUser(userToken string) (*CurrentUser, error) {
 	body, err := makeRequest("v1/account/current-user", userToken)
 	if err != nil {
 		return nil, err

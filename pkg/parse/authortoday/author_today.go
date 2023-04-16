@@ -8,35 +8,35 @@ import (
 	"strings"
 
 	"github.com/paldraken/book_thief/pkg/parse/authortoday/api"
+	"github.com/paldraken/book_thief/pkg/parse/authortoday/chapters"
 	"github.com/paldraken/book_thief/pkg/parse/types"
 )
 
 type AT struct {
-	userToken string
 }
 
-// https://author.today/work/210338
-func (at *AT) Parse(workUrl string) (*types.BookData, error) {
+func (at *AT) Parse(workUrl string, config *types.Config) (*types.BookData, error) {
 
 	workId, err := workIdFromUrl(workUrl)
 	if err != nil {
 		return nil, err
 	}
-	username := ""
-	password := ""
+	username := config.Username
+	password := config.Password
 
-	token, err := api.ObtainingAccessToken(username, password)
-	if err != nil {
-		return nil, err
-	}
-	at.userToken = token
+	atApi := api.NewHttpApi()
 
-	curentUser, err := api.FetchCurrentUser(token)
+	token, err := atApi.ObtainingAccessToken(username, password)
 	if err != nil {
 		return nil, err
 	}
 
-	bookMeta, err := api.FetchBookMetaInfo(workId, token)
+	curentUser, err := atApi.FetchCurrentUser(token)
+	if err != nil {
+		return nil, err
+	}
+
+	bookMeta, err := atApi.FetchBookMetaInfo(workId, token)
 	if err != nil {
 		return nil, err
 	}
@@ -46,19 +46,7 @@ func (at *AT) Parse(workUrl string) (*types.BookData, error) {
 		return nil, err
 	}
 
-	bookChapters := []types.BookChapter{}
-	for _, ch := range bookMeta.Chapters {
-		chapter, err := api.FetchBookChapter(workId, ch.ID, token)
-		if err != nil {
-			return nil, err
-		}
-		text := decodeText(chapter.Key, chapter.Text, fmt.Sprintf("%d", curentUser.Id))
-		bCh := types.BookChapter{}
-		bCh.Number = ch.SortOrder
-		bCh.Text = text
-		bCh.Title = ch.Title
-		bookChapters = append(bookChapters, bCh)
-	}
+	bookChapters, err := chapters.Get(token, bookMeta, fmt.Sprintf("%d", curentUser.Id))
 
 	pbi.Chapters = bookChapters
 

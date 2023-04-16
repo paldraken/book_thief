@@ -1,10 +1,8 @@
-package authortoday
+package chapters
 
 // Алгоритм дешифровки текста главы
 func decodeText(secret, text, userId string) string {
-
 	magic := reverseString(secret) + "@_@" + userId
-
 	counter := 0
 	result := ""
 

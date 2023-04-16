@@ -7,7 +7,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/paldraken/book_thief/pkg/export"
 	"github.com/paldraken/book_thief/pkg/parse"
+	"github.com/paldraken/book_thief/pkg/parse/types"
 )
 
 type fb2Body struct {
@@ -24,6 +26,7 @@ func main() {
 	startAt := time.Now()
 
 	url := "https://author.today/work/210338"
+	// url := "https://author.today/work/210575"
 
 	p, err := parse.Newparse(url)
 
@@ -31,28 +34,26 @@ func main() {
 		log.Fatal(err)
 	}
 
-	pbi, err := p.Parse(url)
+	pbi, err := p.Parse(url, &types.Config{Username: "", Password: ""})
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	fmt.Println(pbi)
+	data, err := export.ToFormat(pbi, "FB2")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	// data, err := export.ToFormat(pbi, "FB2")
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
+	f, err := openFile()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	// f, err := openFile()
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-
-	// if _, err := f.Write(data); err != nil {
-	// 	log.Fatalln(err)
-	// }
-	// defer f.Close()
+	if _, err := f.Write(data); err != nil {
+		log.Fatalln(err)
+	}
+	defer f.Close()
 
 	fmt.Printf("%.2fs elapsed\n", time.Since(startAt).Seconds())
 }

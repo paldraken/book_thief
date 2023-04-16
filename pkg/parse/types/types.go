@@ -1,5 +1,10 @@
 package types
 
+type Config struct {
+	Username string
+	Password string
+}
+
 const (
 	Author     = "Author"
 	CoAuthor   = "CoAuthor"

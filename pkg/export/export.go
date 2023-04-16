@@ -3,6 +3,7 @@ package export
 import (
 	"fmt"
 
+	"github.com/paldraken/book_thief/pkg/export/fb2"
 	"github.com/paldraken/book_thief/pkg/parse/types"
 )
 
@@ -26,7 +27,7 @@ type exporter interface {
 
 func ToFormat(book *types.BookData, format string) ([]byte, error) {
 	m := map[string]func() exporter{
-		FORMAT_FB2: func() exporter { return &fb2{} },
+		FORMAT_FB2: func() exporter { return &fb2.FB2{} },
 	}
 
 	if format == "" {
