@@ -1,6 +1,7 @@
 package fb2
 
 import (
+	"encoding/base64"
 	"encoding/xml"
 	"time"
 
@@ -18,11 +19,24 @@ func (f *FB2) Export(book *types.BookData) ([]byte, error) {
 
 	res.Description = description(book)
 	res.Body = body(book)
+	res.Binary = images(book)
 
 	out, _ := xml.MarshalIndent(res, " ", "  ")
 	out = append([]byte(xml.Header), out...)
 
 	return out, nil
+}
+
+func images(book *types.BookData) []*fb2Binary {
+	result := []*fb2Binary{}
+	for _, img := range book.Images {
+		result = append(result, &fb2Binary{
+			Data:        base64.StdEncoding.EncodeToString(img.Data),
+			Id:          img.Id,
+			ContentType: img.ContentType,
+		})
+	}
+	return result
 }
 
 func description(book *types.BookData) fb2Description {
@@ -37,18 +51,28 @@ func description(book *types.BookData) fb2Description {
 		}
 	}
 
-	return fb2Description{
-		TitleInfo: &fb2TitleInfo{
-			Author: &fb2Author{
-				FirstName: afn,
-				LastName:  aln,
-				Nickname:  nn,
-			},
-			BookTitle:  book.Title,
-			Annotation: book.Annotation,
-			Date:       book.Date,
-			Lang:       "ru",
+	titleInfo := &fb2TitleInfo{
+		Author: &fb2Author{
+			FirstName: afn,
+			LastName:  aln,
+			Nickname:  nn,
 		},
+		BookTitle:  book.Title,
+		Annotation: book.Annotation,
+		Date:       book.Date,
+		Lang:       "ru",
+	}
+
+	if book.CoverId != "" {
+		titleInfo.Coverpage = &fb2CoverPage{
+			Image: &fb2Image{
+				LHref: "#" + book.CoverId,
+			},
+		}
+	}
+
+	return fb2Description{
+		TitleInfo: titleInfo,
 		DocumentInfo: &fb2DocumentInfo{
 			Author: &fb2Author{
 				Nickname: "book thief",

@@ -39,4 +39,12 @@ type BookData struct {
 	Annotation string
 	Chapters   []BookChapter
 	IsDone     bool
+	CoverId    string
+	Images     []*BookImage
+}
+
+type BookImage struct {
+	Id          string
+	Data        []byte
+	ContentType string
 }

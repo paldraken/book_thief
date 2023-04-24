@@ -10,6 +10,7 @@ import (
 	"github.com/paldraken/book_thief/pkg/parse/authortoday/api"
 	"github.com/paldraken/book_thief/pkg/parse/authortoday/chapters"
 	"github.com/paldraken/book_thief/pkg/parse/types"
+	"github.com/paldraken/book_thief/pkg/parse/utils"
 )
 
 type AT struct {
@@ -47,14 +48,33 @@ func (at *AT) Parse(workUrl string, config *types.Config) (*types.BookData, erro
 	}
 
 	bookChapters, err := chapters.Get(token, bookMeta, fmt.Sprintf("%d", curentUser.Id))
-
 	pbi.Chapters = bookChapters
+
+	if bookMeta.CoverURL != "" {
+		cover, err := fetchImage(bookMeta.CoverURL, "cover")
+		if err == nil {
+			pbi.CoverId = "cover"
+			pbi.Images = append(pbi.Images, cover)
+		}
+	}
 
 	if err != nil {
 		log.Panic(err)
 	}
 
 	return pbi, nil
+}
+
+func fetchImage(url, imageId string) (*types.BookImage, error) {
+	image, err := utils.DownloadImage(url)
+	if err != nil {
+		return nil, err
+	}
+	return &types.BookImage{
+		Id:          imageId,
+		Data:        image.Data,
+		ContentType: image.ContentType,
+	}, nil
 }
 
 func workIdFromUrl(workUrl string) (int, error) {
