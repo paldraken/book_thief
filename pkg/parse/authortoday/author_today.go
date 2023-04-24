@@ -25,19 +25,19 @@ func (at *AT) Parse(workUrl string, config *types.Config) (*types.BookData, erro
 	username := config.Username
 	password := config.Password
 
-	atApi := api.NewHttpApi()
-
-	token, err := atApi.ObtainingAccessToken(username, password)
+	token, err := api.ObtainingAccessToken(username, password)
 	if err != nil {
 		return nil, err
 	}
 
-	curentUser, err := atApi.FetchCurrentUser(token)
+	atApi := api.NewHttpApi(token)
+
+	curentUser, err := atApi.FetchCurrentUser()
 	if err != nil {
 		return nil, err
 	}
 
-	bookMeta, err := atApi.FetchBookMetaInfo(workId, token)
+	bookMeta, err := atApi.FetchBookMetaInfo(workId)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (at *AT) Parse(workUrl string, config *types.Config) (*types.BookData, erro
 		return nil, err
 	}
 
-	bookChapters, err := chapters.Get(token, bookMeta, fmt.Sprintf("%d", curentUser.Id))
+	bookChapters, err := chapters.Get(atApi, bookMeta, fmt.Sprintf("%d", curentUser.Id))
 	pbi.Chapters = bookChapters
 
 	if bookMeta.CoverURL != "" {

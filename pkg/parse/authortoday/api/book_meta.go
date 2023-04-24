@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-func (a *HttpApi) FetchBookMetaInfo(workId int, userToken string) (*BookMetaInfo, error) {
+func (a *HttpApi) FetchBookMetaInfo(workId int) (*BookMetaInfo, error) {
 	path := fmt.Sprintf("v1/work/%d/details", workId)
-	body, err := makeRequest(path, userToken)
+	body, err := a.makeRequest(path)
 	if err != nil {
 		return nil, err
 	}

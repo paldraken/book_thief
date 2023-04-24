@@ -6,15 +6,16 @@ const (
 )
 
 type Api interface {
-	ObtainingAccessToken(login, password string) (string, error)
-	FetchBookMetaInfo(workId int, userToken string) (*BookMetaInfo, error)
-	FetchBookChapter(workId, chapterId int, userToken string) (*Chapter, error)
-	FetchBookChapters(workId int, chapterIds []int, userToken string) ([]*Chapter, error)
-	FetchCurrentUser(userToken string) (*CurrentUser, error)
+	FetchBookMetaInfo(workId int) (*BookMetaInfo, error)
+	FetchBookChapter(workId, chapterId int) (*Chapter, error)
+	FetchBookChapters(workId int, chapterIds []int) ([]*Chapter, error)
+	FetchCurrentUser() (*CurrentUser, error)
 }
 
-type HttpApi struct{}
+type HttpApi struct {
+	token string
+}
 
-func NewHttpApi() Api {
-	return &HttpApi{}
+func NewHttpApi(token string) Api {
+	return &HttpApi{token: token}
 }

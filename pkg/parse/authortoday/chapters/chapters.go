@@ -12,10 +12,9 @@ type dlChapter struct {
 	SortOrder int
 }
 
-func Get(token string, bm *api.BookMetaInfo, userId string) ([]types.BookChapter, error) {
+func Get(atApi api.Api, bm *api.BookMetaInfo, userId string) ([]types.BookChapter, error) {
 
 	mSort := make(map[int]int)
-	atApi := api.NewHttpApi()
 
 	workId := bm.ID
 	var chaperIds = make([]int, len(bm.Chapters))
@@ -28,7 +27,7 @@ func Get(token string, bm *api.BookMetaInfo, userId string) ([]types.BookChapter
 
 	var chapters []*dlChapter
 	for _, chunk := range chunks {
-		chs, err := atApi.FetchBookChapters(workId, chunk, token)
+		chs, err := atApi.FetchBookChapters(workId, chunk)
 
 		if err != nil {
 			return nil, err

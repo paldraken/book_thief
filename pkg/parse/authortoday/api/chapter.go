@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-func (a *HttpApi) FetchBookChapter(workId, chapterId int, userToken string) (*Chapter, error) {
+func (a *HttpApi) FetchBookChapter(workId, chapterId int) (*Chapter, error) {
 	path := fmt.Sprintf("v1/work/%d/chapter/%d/text", workId, chapterId)
-	body, err := makeRequest(path, userToken)
+	body, err := a.makeRequest(path)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +22,7 @@ func (a *HttpApi) FetchBookChapter(workId, chapterId int, userToken string) (*Ch
 	return chapter, nil
 }
 
-func (a *HttpApi) FetchBookChapters(workId int, chapterIds []int, userToken string) ([]*Chapter, error) {
+func (a *HttpApi) FetchBookChapters(workId int, chapterIds []int) ([]*Chapter, error) {
 	if len(chapterIds) == 0 {
 		return nil, nil
 	}
@@ -33,7 +33,7 @@ func (a *HttpApi) FetchBookChapters(workId int, chapterIds []int, userToken stri
 
 	path := fmt.Sprintf("v1/work/%d/chapter/many-texts?%s", workId, strings.Join(query, "&"))
 
-	body, err := makeRequest(path, userToken)
+	body, err := a.makeRequest(path)
 	if err != nil {
 		return nil, err
 	}

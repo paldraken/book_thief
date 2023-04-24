@@ -14,7 +14,7 @@ type apiError struct {
 	Message string `json:"message"`
 }
 
-func makeRequest(path string, userToken string) ([]byte, error) {
+func (a *HttpApi) makeRequest(path string) ([]byte, error) {
 	reqUrl := BASE_DOMAIN + path
 	client := &http.Client{}
 
@@ -25,7 +25,7 @@ func makeRequest(path string, userToken string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("Content-type", "application/json")
-	req.Header.Add("Authorization", "Bearer "+userToken)
+	req.Header.Add("Authorization", "Bearer "+a.token)
 
 	resp, err := client.Do(req)
 	if err != nil {
