@@ -9,6 +9,7 @@ type Api interface {
 	ObtainingAccessToken(login, password string) (string, error)
 	FetchBookMetaInfo(workId int, userToken string) (*BookMetaInfo, error)
 	FetchBookChapter(workId, chapterId int, userToken string) (*Chapter, error)
+	FetchBookChapters(workId int, chapterIds []int, userToken string) ([]*Chapter, error)
 	FetchCurrentUser(userToken string) (*CurrentUser, error)
 }
 
