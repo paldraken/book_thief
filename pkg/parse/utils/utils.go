@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -39,4 +40,41 @@ func DownloadImage(url string) (*Image, error) {
 		Data:        buf,
 		ContentType: resp.Header.Get("Content-Type"),
 	}, nil
+}
+
+func DownloadImagesByWorkers(urls []string) ([]*Image, error) {
+	urlCh := make(chan string)
+	results := make(chan *Image)
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			downloadWorker(urlCh, results)
+		}()
+	}
+
+	for _, url := range urls {
+		urlCh <- url
+	}
+	close(urlCh)
+	wg.Wait()
+	close(results)
+
+	images := []*Image{}
+	for r := range results {
+		images = append(images, r)
+	}
+	return images, nil
+}
+
+func downloadWorker(urlCh <-chan string, results chan<- *Image) {
+	for url := range urlCh {
+		img, err := DownloadImage(url)
+		if err != nil {
+			img = &Image{Url: url, Data: nil}
+		}
+		results <- img
+	}
 }

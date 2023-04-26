@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -12,21 +11,16 @@ import (
 	"github.com/paldraken/book_thief/pkg/parse/types"
 )
 
-type fb2Body struct {
-	Title   string `xml:"title"`
-	Content string `xml:",innerxml"`
-}
-
-type body struct {
-	Chapters []*fb2Body `xml:"section"`
-}
-
 func main() {
+	downloadAndSave()
+}
 
+func downloadAndSave() {
 	startAt := time.Now()
 
-	url := "https://author.today/work/210338"
+	//url := "https://author.today/work/210338"
 	// url := "https://author.today/work/210575"
+	url := "https://author.today/work/26323" // -- с картинками
 
 	p, err := parse.Newparse(url)
 
@@ -61,19 +55,17 @@ func main() {
 func openFile() (*os.File, error) {
 	filePath := "d:\\tmp\\test.fb2"
 
-	_, statErr := os.Stat(filePath)
-	if statErr != nil && !errors.Is(statErr, os.ErrNotExist) {
-		return nil, statErr
+	_, err := os.Stat(filePath)
+	if err == nil {
+		err = os.Remove(filePath)
+		if err != nil {
+			return nil, err
+		}
 	}
-
-	err := os.Remove(filePath)
+	f, err := os.Create(filePath)
 	if err != nil {
-		return nil, err
-	}
 
-	if f, err := os.Create(filePath); err != nil {
 		return nil, err
-	} else {
-		return f, nil
 	}
+	return f, nil
 }
