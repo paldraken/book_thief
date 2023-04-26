@@ -125,6 +125,10 @@ func TestFindUnclosedTags(t *testing.T) {
 			input:    []string{"<html>", "<head>", "<title>", "</p>", "</title>", "<body>", "<h1>", "</h1>", "</body>", "</html>"},
 			expected: []string{"</head>", "<p>"},
 		},
+		{
+			input:    []string{"<html>", "<img />", "<img/>", "<img scr=\"https://example.com\" />", "</html>"},
+			expected: []string{},
+		},
 	}
 
 	// Iterate over test cases
