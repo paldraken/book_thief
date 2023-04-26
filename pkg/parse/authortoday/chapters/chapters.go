@@ -12,7 +12,7 @@ type dlChapter struct {
 	SortOrder int
 }
 
-func Get(atApi api.Api, bm *api.BookMetaInfo, userId string) ([]types.BookChapter, error) {
+func Get(atApi api.Api, bm *api.BookMetaInfo, userId string) ([]*types.BookChapter, error) {
 
 	mSort := make(map[int]int)
 
@@ -59,17 +59,17 @@ func chunkInts(ints []int, chunkSize int) [][]int {
 	return chunks
 }
 
-func prepareResult(bm *api.BookMetaInfo, dlChapters []*dlChapter, userId string) []types.BookChapter {
+func prepareResult(bm *api.BookMetaInfo, dlChapters []*dlChapter, userId string) []*types.BookChapter {
 
-	result := []types.BookChapter{}
+	result := []*types.BookChapter{}
 
-	decodeChan := make(chan types.BookChapter, len(bm.Chapters))
+	decodeChan := make(chan *types.BookChapter, len(bm.Chapters))
 
 	for _, dlCh := range dlChapters {
 		go func(ch *dlChapter) {
 
 			text := decodeText(ch.Key, ch.Text, userId)
-			bCh := types.BookChapter{}
+			bCh := &types.BookChapter{}
 			bCh.Number = ch.SortOrder
 			bCh.Text = text
 			bCh.Title = ch.Title

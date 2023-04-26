@@ -37,7 +37,7 @@ type BookData struct {
 	Tags       []string
 	Date       string
 	Annotation string
-	Chapters   []BookChapter
+	Chapters   []*BookChapter
 	IsDone     bool
 	CoverId    string
 	Images     []*BookImage
