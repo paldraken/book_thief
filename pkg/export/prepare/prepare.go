@@ -1,6 +1,7 @@
 package prepare
 
 import (
+	"fmt"
 	"math"
 	"regexp"
 	"strings"
@@ -34,7 +35,11 @@ func collectAllTags(s string) []string {
 
 		if inTag {
 			if s[i] == '>' {
-				found = append(found, strings.Split(currTag, " ")[0]+">")
+				close := ">"
+				if s[i-1] == '/' {
+					close = "/>"
+				}
+				found = append(found, strings.Split(currTag, " ")[0]+close)
 				s = s[i+1:]
 				inTag = false
 				i = -1
@@ -56,6 +61,10 @@ func findUnclosedTags(tags []string) []string {
 		// skip self closed tags
 		if len(tag) > 3 && tag[len(tag)-2:] == "/>" {
 			continue
+		}
+
+		if strings.Contains(tag, "img") {
+			fmt.Println("img - ", tag)
 		}
 
 		if tag[0] == '<' && tag[1] != '/' {
