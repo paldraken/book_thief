@@ -4,39 +4,108 @@ import (
 	"fmt"
 	"hash/crc32"
 	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/paldraken/book_thief/pkg/parse/types"
 	"github.com/paldraken/book_thief/pkg/parse/utils"
 )
 
-func extractImagesFromText(chapters []*types.BookChapter) []string {
-	result := []string{}
+type imgInfo struct {
+	chapterN  int
+	origTag   string
+	url       string
+	btReplace string
+}
+
+func bookImages(chapters []*types.BookChapter) []*types.BookImage {
+	imagesInfo := extractImgTagsFromChapters(chapters)
+	return getBookImages(imagesInfo)
+}
+
+func extractImgTagsFromChapters(chapters []*types.BookChapter) []*imgInfo {
+	result := []*imgInfo{}
 	for _, chapter := range chapters {
 
-		re := regexp.MustCompile(`<img(?:[^>]*?\s+)?src="([^"]+)"`)
-		srcValues := re.FindAllStringSubmatch(chapter.Text, -1)
+		srcRegex := regexp.MustCompile(`<img[^>]+src="([^"]+)"`)
+		imgRegex := regexp.MustCompile(`<img[^>]+\>`)
+		matches := imgRegex.FindAllString(chapter.Text, -1)
+		for _, imgTag := range matches {
 
-		for _, matches := range srcValues {
-			result = append(result, matches[1])
+			srcMatch := srcRegex.FindStringSubmatch(imgTag)
+
+			if len(srcMatch) != 2 {
+				continue
+			}
+			src := srcMatch[1]
+			url := addATDomain(src)
+			hash := hashFromUrl(url)
+
+			replacement := fmt.Sprintf("#__bt_binary__#%s#", hash)
+
+			it := &imgInfo{
+				chapterN:  chapter.Number,
+				origTag:   imgTag,
+				url:       url,
+				btReplace: replacement,
+			}
+			result = append(result, it)
+			replaceImgToPlaceolder(chapter, it)
 		}
 	}
 	return result
 }
 
-func getBookImages(book *types.BookData) []*types.BookImage {
-	imageList := extractImagesFromText(book.Chapters)
+func replaceImgToPlaceolder(chapter *types.BookChapter, info *imgInfo) {
+	chapter.Text = strings.Replace(chapter.Text, info.origTag, info.btReplace, 1)
+}
+
+func getBookImages(imgesInfo []*imgInfo) []*types.BookImage {
+
+	result := make([]*types.BookImage, len(imgesInfo))
 
 	wg := sync.WaitGroup{}
-	for _, url := range imageList {
+	for i, info := range imgesInfo {
 		wg.Add(1)
-		go func(url string) {
+		go func(info *imgInfo, i int) {
 			defer wg.Done()
-			hash := crc32.ChecksumIEEE([]byte(url))
-			id := fmt.Sprintf("%x", hash)
-			img, err := utils.DownloadImage(url)
-			sync.
 
-		}(url)
+			id := hashFromUrl(info.url)
+			img, err := utils.DownloadImage(info.url)
+
+			var data []byte
+			var contentType string
+
+			if err != nil {
+				data = nil
+				contentType = "image unavailable: " + info.url
+				fmt.Println("Download error:", err)
+			} else {
+				data = img.Data
+				contentType = img.ContentType
+			}
+			result[i] = &types.BookImage{
+				Id:          id,
+				Data:        data,
+				ContentType: contentType,
+			}
+		}(info, i)
 	}
+	wg.Wait()
+
+	return result
+}
+
+func addATDomain(url string) string {
+	match, _ := regexp.MatchString(`^(http|https):\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(?:\/[\w\-\.]*)*$`, url)
+	if match {
+		return url
+	} else {
+		return "https://cm.author.today" + url
+	}
+}
+
+func hashFromUrl(url string) string {
+	hash := crc32.ChecksumIEEE([]byte(url))
+	return fmt.Sprintf("%x", hash)
 }

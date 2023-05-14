@@ -3,6 +3,8 @@ package fb2
 import (
 	"encoding/base64"
 	"encoding/xml"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/paldraken/book_thief/pkg/export/prepare"
@@ -24,7 +26,14 @@ func (f *FB2) Export(book *types.BookData) ([]byte, error) {
 	out, _ := xml.MarshalIndent(res, " ", "  ")
 	out = append([]byte(xml.Header), out...)
 
-	return out, nil
+	contentStr := string(out)
+	for _, img := range book.Images {
+		placeholder := fmt.Sprintf("#__bt_binary__#%s#", img.Id)
+		replace := fmt.Sprintf("<image l:href=\"#%s\"></image>", img.Id)
+		contentStr = strings.Replace(contentStr, placeholder, replace, 1)
+	}
+
+	return []byte(contentStr), nil
 }
 
 func images(book *types.BookData) []*fb2Binary {

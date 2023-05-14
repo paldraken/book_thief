@@ -2,7 +2,6 @@ package authortoday
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -48,6 +47,9 @@ func (at *AT) Parse(workUrl string, config *types.Config) (*types.BookData, erro
 	}
 
 	bookChapters, err := chapters.Get(atApi, bookMeta, fmt.Sprintf("%d", curentUser.Id))
+	if err != nil {
+		return nil, err
+	}
 	pbi.Chapters = bookChapters
 
 	if bookMeta.CoverURL != "" {
@@ -58,9 +60,8 @@ func (at *AT) Parse(workUrl string, config *types.Config) (*types.BookData, erro
 		}
 	}
 
-	if err != nil {
-		log.Panic(err)
-	}
+	otherImages := bookImages(bookChapters)
+	pbi.Images = append(pbi.Images, otherImages...)
 
 	return pbi, nil
 }
