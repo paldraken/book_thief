@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/paldraken/book_thief/pkg/parse/types"
-	"github.com/paldraken/book_thief/pkg/parse/utils"
+	"github.com/paldraken/book_thief/internal/parse/types"
+	"github.com/paldraken/book_thief/internal/parse/utils"
 )
 
 type imgInfo struct {

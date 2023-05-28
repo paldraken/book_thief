@@ -3,8 +3,8 @@ package export
 import (
 	"fmt"
 
-	"github.com/paldraken/book_thief/pkg/export/fb2"
-	"github.com/paldraken/book_thief/pkg/parse/types"
+	"github.com/paldraken/book_thief/internal/export/fb2"
+	"github.com/paldraken/book_thief/internal/parse/types"
 )
 
 const (

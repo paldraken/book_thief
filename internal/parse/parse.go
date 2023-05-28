@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/paldraken/book_thief/pkg/parse/authortoday"
-	"github.com/paldraken/book_thief/pkg/parse/types"
+	"github.com/paldraken/book_thief/internal/parse/authortoday"
+	"github.com/paldraken/book_thief/internal/parse/types"
 )
 
 type parse interface {

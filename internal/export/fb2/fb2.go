@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/paldraken/book_thief/pkg/export/prepare"
-	"github.com/paldraken/book_thief/pkg/parse/types"
+	"github.com/paldraken/book_thief/internal/export/prepare"
+	"github.com/paldraken/book_thief/internal/parse/types"
 )
 
 type FB2 struct{}

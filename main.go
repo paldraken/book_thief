@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/paldraken/book_thief/pkg/export"
-	"github.com/paldraken/book_thief/pkg/parse"
-	"github.com/paldraken/book_thief/pkg/parse/types"
+	"github.com/paldraken/book_thief/internal/export"
+	"github.com/paldraken/book_thief/internal/parse"
+	"github.com/paldraken/book_thief/internal/parse/types"
 )
 
 func main() {

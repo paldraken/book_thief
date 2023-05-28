@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/paldraken/book_thief/pkg/parse/authortoday/api"
-	"github.com/paldraken/book_thief/pkg/parse/authortoday/chapters"
-	"github.com/paldraken/book_thief/pkg/parse/types"
-	"github.com/paldraken/book_thief/pkg/parse/utils"
+	"github.com/paldraken/book_thief/internal/parse/authortoday/api"
+	"github.com/paldraken/book_thief/internal/parse/authortoday/chapters"
+	"github.com/paldraken/book_thief/internal/parse/types"
+	"github.com/paldraken/book_thief/internal/parse/utils"
 )
 
 type AT struct {
