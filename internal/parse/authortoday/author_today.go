@@ -10,19 +10,20 @@ import (
 	"github.com/paldraken/book_thief/internal/parse/authortoday/chapters"
 	"github.com/paldraken/book_thief/internal/parse/types"
 	"github.com/paldraken/book_thief/internal/parse/utils"
+	"github.com/spf13/viper"
 )
 
 type AT struct {
 }
 
-func (at *AT) Parse(workUrl string, config *types.Config) (*types.BookData, error) {
+func (at *AT) Parse(workUrl string) (*types.BookData, error) {
 
 	workId, err := workIdFromUrl(workUrl)
 	if err != nil {
 		return nil, err
 	}
-	username := config.Username
-	password := config.Password
+	username := viper.GetString("author_today.username")
+	password := viper.GetString("author_today.password")
 
 	token, err := api.ObtainingAccessToken(username, password)
 	if err != nil {

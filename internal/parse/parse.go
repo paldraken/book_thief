@@ -10,7 +10,7 @@ import (
 )
 
 type parse interface {
-	Parse(url string, config *types.Config) (*types.BookData, error)
+	Parse(url string) (*types.BookData, error)
 }
 
 type LibNotSupported struct {
